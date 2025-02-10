@@ -23,7 +23,6 @@ def run():
             accept_multiple_files=False,
             label_visibility="collapsed"
         )
-        st.divider()
 
     if uploaded_file:
         data = pd.read_csv(uploaded_file)
@@ -33,6 +32,8 @@ def run():
         report_date = generate_dates(min_date=min_date, max_date=max_date)
 
         with st.sidebar:
+            st.divider()
+
             st.subheader(f"Date range: {min_date} - {max_date}")
 
             client = st.selectbox(
