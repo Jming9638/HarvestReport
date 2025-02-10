@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-from datetime import datetime
 from harvest.transform import Transform
 from harvest.visual import Visual
 
@@ -53,11 +52,17 @@ def run():
 
         visual_row1 = st.columns((2, 0.5, 1, 1), gap="small")
         with visual_row1[0]:
+            colormap = {
+                "Yes": "#0A9396",
+                "No": "#BB3E03"
+            }
+
             visual.plotly_piechart(
                 data=transform.billable_hours,
                 title="Billable Hours",
                 labels="Billable?",
-                values="Hours"
+                values="Hours",
+                colormap=colormap
             )
         with visual_row1[-2]:
             st.subheader("")
@@ -84,8 +89,14 @@ def run():
 
         st.divider()
 
+        member_hours = transform.members.copy()
+        member_hours = member_hours.sort_values(
+            by=["First Name", "Billable?"],
+            ascending=[True, False]
+        )
+
         visual.plotly_stackbar(
-            data=transform.members,
+            data=member_hours,
             title="Employee Hours",
             labels="First Name",
             values="Percentage",
@@ -106,6 +117,14 @@ def run():
             hide_index=True,
             use_container_width=True
         )
+
+        st.divider()
+        with st.expander("Detailed Hours"):
+            st.dataframe(
+                data=transform.member_date,
+                hide_index=False,
+                use_container_width=True
+            )
 
 
 if __name__ == "__main__":

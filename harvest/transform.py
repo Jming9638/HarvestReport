@@ -16,6 +16,7 @@ class Transform:
         self.member_hours = None
         self.member_billable_hours = None
         self.members = None
+        self.member_date = None
 
     def transform(self):
         self.total_members += self.data["First Name"].nunique()
@@ -38,5 +39,14 @@ class Transform:
             how="left"
         )
         self.members["Percentage"] = self.members["Hours"] / self.members["TotalHours"]
+
+        self.member_date = self.data.pivot_table(
+            values="Hours",
+            index="First Name",
+            columns="Date",
+            aggfunc="sum",
+            fill_value=0
+        )
+        # self.member_date = self.member_date.map(lambda x: 1 if x > 0 else 0)
 
         return self
