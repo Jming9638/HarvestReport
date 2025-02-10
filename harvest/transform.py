@@ -48,5 +48,3 @@ class Transform:
             fill_value=0
         )
         # self.member_date = self.member_date.map(lambda x: 1 if x > 0 else 0)
-
-        return self

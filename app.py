@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from harvest.transform import Transform
 from harvest.visual import Visual
+from harvest.utils import generate_dates, is_holiday, is_weekend
 
 
 def run():
@@ -26,6 +27,8 @@ def run():
         min_date = data["Date"].min()
         max_date = data["Date"].max()
 
+        report_date = generate_dates(min_date=min_date, max_date=max_date)
+
         with st.sidebar:
             st.markdown(f"Date range: **{min_date} - {max_date}**")
 
@@ -34,13 +37,27 @@ def run():
                 options=[None] + sorted(data["Client"].unique().tolist())
             )
 
+            is_billable = st.selectbox(
+                label="Billable",
+                options=[None] + sorted(data["Billable?"].unique().tolist())
+            )
+
             employee = st.selectbox(
                 label="Employee",
                 options=[None] + sorted(data["First Name"].unique().tolist())
             )
 
+            st.dataframe(
+                data=report_date,
+                hide_index=True,
+                use_container_width=True
+            )
+
         if client:
             data = data[data["Client"] == client]
+
+        if is_billable:
+            data = data[data["Billable?"] == is_billable]
 
         if employee:
             data = data[data["First Name"] == employee]
