@@ -16,11 +16,14 @@ def run():
     st.title("Harvest Report")
 
     with st.sidebar:
+        st.subheader("Upload harvest csv report")
         uploaded_file = st.file_uploader(
             label="Upload harvest csv report",
             type=["csv"],
-            accept_multiple_files=False
+            accept_multiple_files=False,
+            label_visibility="collapsed"
         )
+        st.divider()
 
     if uploaded_file:
         data = pd.read_csv(uploaded_file)
@@ -30,23 +33,26 @@ def run():
         report_date = generate_dates(min_date=min_date, max_date=max_date)
 
         with st.sidebar:
-            st.markdown(f"Date range: **{min_date} - {max_date}**")
+            st.subheader(f"Date range: {min_date} - {max_date}")
 
             client = st.selectbox(
-                label="Client",
+                label="**Client**",
                 options=[None] + sorted(data["Client"].unique().tolist())
             )
 
             is_billable = st.selectbox(
-                label="Billable",
+                label="**Billable**",
                 options=[None] + sorted(data["Billable?"].unique().tolist())
             )
 
             employee = st.selectbox(
-                label="Employee",
+                label="**Employee**",
                 options=[None] + sorted(data["First Name"].unique().tolist())
             )
 
+            st.divider()
+
+            st.markdown("**Holiday and Weekend**")
             st.dataframe(
                 data=report_date,
                 hide_index=True,
@@ -96,9 +102,10 @@ def run():
         client_hours = transform.client_hours.copy()
         client_hours["Hours"] = client_hours["Hours"].apply(lambda x: round(x, 2))
         client_hours = client_hours.sort_values(by=["Hours"], ascending=[False])
+        top_client = 15
         visual.plotly_barchart(
-            data=client_hours.head(10),
-            title="Client Hours",
+            data=client_hours.head(top_client),
+            title=f"Client Hours (Top {top_client})",
             labels="Client",
             values="Hours",
             orientation="v"
@@ -124,6 +131,7 @@ def run():
 
         st.divider()
 
+        st.markdown("**Detailed Table**")
         summary_table = transform.data.copy().groupby(["Client", "Task", "Billable?"]).agg({"Hours": "sum"}).reset_index()
         summary_table = summary_table.sort_values(
             by=["Billable?", "Hours"],
@@ -136,7 +144,7 @@ def run():
         )
 
         st.divider()
-        with st.expander("Detailed Hours"):
+        with st.expander("**Detailed Hours**"):
             st.dataframe(
                 data=transform.member_date,
                 hide_index=False,
