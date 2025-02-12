@@ -152,6 +152,9 @@ def run():
                 use_container_width=True
             )
 
+    else:
+        st.warning("Upload csv file from Harvest to get the report.")
+
 
 if __name__ == "__main__":
     run()
