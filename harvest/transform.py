@@ -1,6 +1,13 @@
 import pandas as pd
 
 
+def standardize(name):
+    keywords = {"internal", "persuasion"}
+    if any(keyword in name.lower() for keyword in keywords):
+        return "Internal"
+    return name
+
+
 class Transform:
     def __init__(self, data: pd.DataFrame):
         self.data = data
@@ -18,6 +25,8 @@ class Transform:
         self.member_date = None
 
     def transform(self):
+        self.data["Client"] = self.data["Client"].apply(standardize)
+
         self.total_members += self.data["First Name"].nunique()
         self.total_hours += round(self.data["Hours"].sum(), 2)
         self.total_billable += round(self.data[self.data["Billable?"] == "Yes"]["Hours"].sum(), 2)
