@@ -69,19 +69,68 @@ class Visual:
 
         st.plotly_chart(fig, use_container_width=True, config=self.CONFIG)
 
-    def plotly_stackbar(self, title, data, labels, values, orientation="v", barmode="stack", breakdown=None):
+    def plotly_capacity(self, title, data, labels, values, orientation="h", barmode="stack"):
         default_colormap = {
-            "Yes": "#0A9396",
-            "No": "#BB3E03"
+            "BillableCap": "#0A9396",
+            "NonBillableCap": "#BB3E03"
         }
 
         fig = go.Figure()
 
-        categories = data[breakdown].unique()
-        for category in categories:
-            subset = data[data[breakdown] == category]
-            x = subset[labels] if orientation == "v" else subset[values]
-            y = subset[values] if orientation == "v" else subset[labels]
+        for category in values:
+            subset = data[[labels, category]].copy()
+            x = subset[labels] if orientation == "v" else subset[category]
+            y = subset[category] if orientation == "v" else subset[labels]
+            text = y if orientation == "v" else x
+            hovertemplate = "%{x}: %{y:.2%}" if orientation == "v" else "%{y}: %{x:.2%}"
+
+            color = default_colormap.get(category, "#CCCCCC")
+
+            fig.add_trace(
+                go.Bar(
+                    name=category,
+                    x=x,
+                    y=y,
+                    text=text,
+                    texttemplate="%{text:.2%}",
+                    textfont=dict(size=18),
+                    orientation=orientation,
+                    hovertemplate=hovertemplate + " <extra></extra>",
+                    marker=dict(color=color)
+                )
+            )
+
+            fig.add_vline(
+                x=1,
+                line=dict(color="black", width=3, dash="dash"),
+                annotation=dict(text="Target Line", font_size=14, showarrow=False, y=25)
+            )
+
+        fig.update_layout(
+            title_text=title,
+            height=250,
+            xaxis=dict(
+                title=dict(text="Percentage", font=dict(size=16)),
+                tickformat=".0%",
+                tickfont=dict(size=14)
+            ),
+            barmode=barmode
+        )
+
+        st.plotly_chart(fig, use_container_width=True, config=self.CONFIG)
+
+    def plotly_member_stackbar(self, title, data, labels, values, orientation="v", barmode="stack"):
+        default_colormap = {
+            "BillPercentage": "#0A9396",
+            "NonBillPercentage": "#BB3E03"
+        }
+
+        fig = go.Figure()
+
+        for category in values:
+            subset = data[[labels, category]].copy()
+            x = subset[labels] if orientation == "v" else subset[category]
+            y = subset[category] if orientation == "v" else subset[labels]
             text = y if orientation == "v" else x
             hovertemplate = "%{x}: %{y} hours" if orientation == "v" else "%{y}: %{x} hours"
 
@@ -109,10 +158,12 @@ class Visual:
                 tickfont=dict(size=14)
             ),
             yaxis=dict(
-                title=dict(text=values, font=dict(size=16)),
+                title=dict(text="Percentage", font=dict(size=16)),
+                tickformat=".0%",
                 tickfont=dict(size=14)
             ),
-            barmode=barmode
+            barmode=barmode,
+            legend_title="Category"
         )
 
         st.plotly_chart(fig, use_container_width=True, config=self.CONFIG)

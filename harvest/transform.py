@@ -20,8 +20,6 @@ class Transform:
         self.client_hours = None
         self.client_billable_hours = None
         self.member_hours = None
-        self.member_billable_hours = None
-        self.members = None
         self.member_date = None
 
     def transform(self):
@@ -37,16 +35,14 @@ class Transform:
         self.client_hours = self.data.groupby(["Client"]).agg({"Hours": "sum"}).reset_index()
         self.client_billable_hours = self.data.groupby(["Client", "Billable?"]).agg({"Hours": "sum"}).reset_index()
 
-        self.member_hours = self.data.groupby(["First Name"]).agg(TotalHours=("Hours", "sum")).reset_index()
-        self.member_billable_hours = self.data.groupby(["First Name", "Billable?"]).agg({"Hours": "sum"}).reset_index()
-
-        self.members = self.member_billable_hours.merge(
-            self.member_hours,
-            left_on="First Name",
-            right_on="First Name",
-            how="left"
-        )
-        self.members["Percentage"] = self.members["Hours"] / self.members["TotalHours"]
+        self.member_hours = self.data.groupby(["First Name"]).agg(
+            BillableHours=("Hours", lambda x: x[self.data["Billable?"] == "Yes"].sum()),
+            NonBillableHours=("Hours", lambda x: x[self.data["Billable?"] == "No"].sum()),
+            TotalHours=("Hours", "sum")
+        ).reset_index()
+        self.member_hours["DefaultCapacity"] = 35.0
+        self.member_hours["BillPercentage"] = self.member_hours["BillableHours"] / self.member_hours["TotalHours"]
+        self.member_hours["NonBillPercentage"] = self.member_hours["NonBillableHours"] / self.member_hours["TotalHours"]
 
         self.member_date = self.data.pivot_table(
             values="Hours",
@@ -55,4 +51,3 @@ class Transform:
             aggfunc="sum",
             fill_value=0
         )
-        # self.member_date = self.member_date.map(lambda x: 1 if x > 0 else 0)

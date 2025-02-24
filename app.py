@@ -74,7 +74,7 @@ def run():
 
         visual = Visual()
 
-        visual_row1 = st.columns((2, 0.5, 1, 1), gap="small")
+        visual_row1 = st.columns((2, 0.5, 1, 1), gap="small", vertical_alignment="center")
         with visual_row1[0]:
             colormap = {
                 "Yes": "#0A9396",
@@ -89,14 +89,26 @@ def run():
                 colormap=colormap
             )
         with visual_row1[-2]:
-            st.subheader("")
             st.metric(label="**Total Employee**", value=transform.total_members)
             st.metric(label="**Total Hour**", value=transform.total_hours)
 
         with visual_row1[-1]:
-            st.subheader("")
             st.metric(label="**Total Billable Hour**", value=transform.total_billable)
             st.metric(label="**Total Non-billable Hour**", value=transform.total_non_billable)
+
+        total_capacity = transform.total_members * 35
+        bill_capacity = transform.total_billable / total_capacity
+        non_bill_capacity = transform.total_non_billable / total_capacity
+        overall_capacity = pd.DataFrame(
+            data=[["Capacity", transform.total_billable, transform.total_non_billable, bill_capacity, non_bill_capacity]],
+            columns=["Category", "BillableHours", "NonBillableHours", "BillableCap", "NonBillableCap"]
+        )
+        visual.plotly_capacity(
+            title="Capacity meter",
+            data=overall_capacity,
+            labels="Category",
+            values=["BillableCap", "NonBillableCap"]
+        )
 
         st.divider()
 
@@ -114,20 +126,19 @@ def run():
 
         st.divider()
 
-        member_hours = transform.members.copy()
+        member_hours = transform.member_hours.copy()
         member_hours = member_hours.sort_values(
-            by=["First Name", "Billable?"],
-            ascending=[True, False]
+            by=["First Name"],
+            ascending=[True]
         )
 
-        visual.plotly_stackbar(
+        visual.plotly_member_stackbar(
             data=member_hours,
             title="Employee Hours",
             labels="First Name",
-            values="Percentage",
+            values=["BillPercentage", "NonBillPercentage"],
             orientation="v",
-            barmode="stack",
-            breakdown="Billable?"
+            barmode="stack"
         )
 
         st.divider()
