@@ -94,6 +94,9 @@ def run():
         with st.expander("**Detailed Hours**"):
             reporter.member_detail()
     
+    else:
+        st.warning("Please upload csv file from Harvest.")
+    
     
 if __name__ == "__main__":
     run()
