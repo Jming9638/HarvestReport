@@ -1,0 +1,17 @@
+[project]
+name = "harvest-report"
+version = "0.2.0"
+description = ""
+authors = [
+    { name = "Low Jia Ming", email = "lowjiaming3838@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "holidays",
+    "numpy",
+    "pandas",
+    "plotly",
+    "pyarrow",
+    "streamlit",
+]

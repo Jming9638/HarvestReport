@@ -1,0 +1,6 @@
+holidays
+numpy
+pandas
+plotly
+pyarrow
+streamlit
