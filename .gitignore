@@ -45,7 +45,6 @@ htmlcov/
 .env/
 .venv/
 
-
 # IDE specific files
 .idea/
 .vscode/
