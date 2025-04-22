@@ -54,16 +54,23 @@ class HarvestReport:
         st.plotly_chart(fig, use_container_width=True, config=self.CONFIG)
         
     def client_breakdown(self):
-        client_hours = self.data.groupby("Client").apply(
+        exclude_client = [
+            "Data - Internal",
+            "Internal",
+            "Persuasion",
+            "PT Internal",
+        ]
+        cleaned_data = self.data[~self.data["Client"].isin(exclude_client)]
+        client_hours = cleaned_data.groupby("Client").apply(
             lambda x: pd.Series({
                 "billableHours": x[x["Billable?"] == "Yes"]["Hours"].sum(),
                 "nonBillableHours": x[x["Billable?"] == "No"]["Hours"].sum(),
                 "totalHours": x["Hours"].sum()
             })
         ).reset_index().sort_values("totalHours", ascending=False)
-        
+
         fig = go.Figure()
-        
+
         fig.add_traces(
             [
                 go.Bar(
