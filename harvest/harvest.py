@@ -155,18 +155,18 @@ class HarvestReport:
                 dash="longdash"
             )
         )
-        fig.add_annotation(
-            x = len(member_hours) + 0.5,
-            y = upper_bound,
-            text="Critical",
-            showarrow=False,
-            xshift=-10,
-            yshift=10,
-            font=dict(
-                size=16,
-                color="black"
-            )
-        )
+        # fig.add_annotation(
+        #     x = len(member_hours) + 0.5,
+        #     y = upper_bound,
+        #     text="Critical",
+        #     showarrow=False,
+        #     xshift=-10,
+        #     yshift=10,
+        #     font=dict(
+        #         size=16,
+        #         color="black"
+        #     )
+        # )
         
         fig.add_shape(
             type="line",
@@ -180,18 +180,18 @@ class HarvestReport:
                 dash="longdash"
             )
         )
-        fig.add_annotation(
-            x = len(member_hours) + 0.5,
-            y = lower_bound,
-            text="Enough",
-            showarrow=False,
-            xshift=-10,
-            yshift=10,
-            font=dict(
-                size=16,
-                color="black"
-            )
-        )
+        # fig.add_annotation(
+        #     x = len(member_hours) + 0.5,
+        #     y = lower_bound,
+        #     text="Enough",
+        #     showarrow=False,
+        #     xshift=-10,
+        #     yshift=10,
+        #     font=dict(
+        #         size=16,
+        #         color="black"
+        #     )
+        # )
 
         fig.update_layout(
             barmode="stack",
