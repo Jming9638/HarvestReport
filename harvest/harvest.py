@@ -20,11 +20,12 @@ def count_weekdays(start_date, end_date):
 
 
 class HarvestReport:
-    YES_NO_COLORMAP = {"Yes": "#0A9396", "No": "#BB3E03"}
+    YES_NO_COLORMAP = {"Yes": "#0A9396", "No": "#BB3E03", "Leave": "#6C757D"}
     CONFIG = {"displayModeBar": False}
     
     def __init__(self, data: pd.DataFrame):
         self.data = data.copy()
+        self.data["Billable?"] = self.data.apply(lambda x: "Leave" if "Holiday" in x["Task"] else x["Billable?"], axis=1)
 
     def overall(self):
         billable_hours = self.data.groupby(["Billable?"]).agg({"Hours": "sum"}).reset_index()
@@ -111,6 +112,7 @@ class HarvestReport:
             lambda x: pd.Series({
                 "billableHours": x[x["Billable?"] == "Yes"]["Hours"].sum(),
                 "nonBillableHours": x[x["Billable?"] == "No"]["Hours"].sum(),
+                "leaveHours": x[x["Billable?"] == "Leave"]["Hours"].sum(),
                 "billablePercentage": x[x["Billable?"] == "Yes"]["Hours"].sum() / x["Hours"].sum(),
                 "nonBillablePercentage": x[x["Billable?"] == "No"]["Hours"].sum() / x["Hours"].sum(),
                 "totalHours": x["Hours"].sum()
@@ -140,6 +142,16 @@ class HarvestReport:
                     texttemplate="%{text:.2f}",
                     hovertemplate="%{x}: %{y} hours <extra></extra>",
                     marker_color="#BB3E03"
+                ),
+                go.Bar(
+                    name="Leave",
+                    x=member_hours["First Name"],
+                    y=member_hours["leaveHours"],
+                    text=member_hours["leaveHours"],
+                    textfont=dict(size=16),
+                    texttemplate="%{text:.2f}",
+                    hovertemplate="%{x}: %{y} hours <extra></extra>",
+                    marker_color="#6C757D"
                 )
             ]
         )
